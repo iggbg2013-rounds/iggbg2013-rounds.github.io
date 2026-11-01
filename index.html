@@ -622,6 +622,7 @@ function renderSettings(){
     <div class="group-title">Важно за тази версия</div>
     <p class="note" style="margin-top:0">Свирка: кръглият бутон на началния екран или кръгът по време на таймера. Докосване дава кратък сигнал, задържане — дълъг. В браузъра бутоните за звук на телефона не могат да се използват; това ще работи в истинското приложение.</p>
     <p class="note" style="margin-top:0">Дръж екрана включен по време на тренировка. Ако телефонът заключи екрана, таймерът спира да издава звук. Ако екранът изгасва, включи Settings → Display &amp; Brightness → Auto-Lock → Never докато тренираш. Завърти телефона хоризонтално за огромни цифри.</p>
+    <p class="note" style="margin-top:0">Версия 0.4 · гонг в интервалите</p>
   </div>`;
 }
 
@@ -757,7 +758,7 @@ function endWhistle(){if(activeWhistle){activeWhistle.stop();activeWhistle=null}
 window.addEventListener('keydown',e=>{if((e.key==='w'||e.key==='W')&&!e.repeat&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){const h=whistleHold();setTimeout(()=>h.stop(),10)}});
 
 render();
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{})})}
 </script>
 </body>
 </html>
