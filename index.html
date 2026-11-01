@@ -335,7 +335,7 @@ function whistleHold(){
 function play(id,when){
   if(!ctx)return;const t=Math.max(ctx.currentTime,when??ctx.currentTime);
   switch(id){
-    case'bell':strike(t,1180,0.7);break;
+    case'bell':strike(t,1180,1.0,1.35);break;
     case'bellEnd':strike(t,1180,1.3);strike(t+0.28,1180,1.3);strike(t+0.56,1180,1.4);break;
     case'finish':strike(t,420,3.2,1.2);[0,.3,.6,.9].forEach(d=>strike(t+d,1180,1.2,.6));break;
     case'clapper':knock(t);knock(t+0.14);break;
