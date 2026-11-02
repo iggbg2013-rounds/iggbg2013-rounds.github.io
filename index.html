@@ -255,7 +255,8 @@ let custom=store.get('custom',[]);
 if(!store.get('prep0',false)){custom.forEach(p=>{if(p.prep===10)p.prep=0});store.set('custom',custom);store.set('prep0',true)}
 if(!store.get('gong1',false)){const old=['bellEnd','beep','beepHigh'];custom.forEach(p=>p.parts.forEach(pt=>pt.blocks.forEach(b=>{if(old.includes(b.startSound))b.startSound='bell';if(old.includes(b.endSound))b.endSound='bell'})));store.set('custom',custom);store.set('gong1',true)}
 let quick=store.get('quick',{rounds:3,work:120,rest:60});
-let settings=Object.assign({volume:0.9,mix:true},store.get('settings',{}));
+let settings=Object.assign({volume:1,mix:true},store.get('settings',{}));
+if(!store.get('loud1',false)){settings.volume=1;store.set('settings',settings);store.set('loud1',true)}
 const allPrograms=cat=>BUILTINS.filter(p=>p.category===cat).concat(custom.filter(p=>p.category===cat));
 const findProgram=id=>BUILTINS.find(p=>p.id===id)||custom.find(p=>p.id===id);
 function saveProgram(p){p=clone(p);p.builtin=false;const i=custom.findIndex(x=>x.id===p.id);if(i>=0)custom[i]=p;else custom.push(p);store.set('custom',custom)}
@@ -306,7 +307,7 @@ function stripHTML(tl,cls=''){const tot=Math.max(tl.total,1);const dense=tl.segs
 let ctx=null,master=null,noiseBuf=null;
 function ensureAudio(){
   try{if(navigator.audioSession)navigator.audioSession.type=settings.mix?'ambient':'playback'}catch(e){}
-  if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=new AC();master=ctx.createGain();master.connect(ctx.destination);
+  if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=new AC();master=ctx.createGain();const comp=ctx.createDynamicsCompressor();comp.threshold.value=-22;comp.knee.value=6;comp.ratio.value=12;comp.attack.value=0.002;comp.release.value=0.2;const makeup=ctx.createGain();makeup.gain.value=7;const shaper=ctx.createWaveShaper();const cv=new Float32Array(2049);for(let i=0;i<2049;i++){const x=i/1024-1;cv[i]=Math.tanh(1.6*x)/Math.tanh(1.6)}shaper.curve=cv;shaper.oversample='2x';master.connect(comp);comp.connect(makeup);makeup.connect(shaper);shaper.connect(ctx.destination);
     noiseBuf=ctx.createBuffer(1,ctx.sampleRate*0.2,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
   master.gain.value=settings.volume;
   if(ctx.state!=='running')ctx.resume();
@@ -622,7 +623,7 @@ function renderSettings(){
     <div class="group-title">Важно за тази версия</div>
     <p class="note" style="margin-top:0">Свирка: кръглият бутон на началния екран или кръгът по време на таймера. Докосване дава кратък сигнал, задържане — дълъг. В браузъра бутоните за звук на телефона не могат да се използват; това ще работи в истинското приложение.</p>
     <p class="note" style="margin-top:0">Дръж екрана включен по време на тренировка. Ако телефонът заключи екрана, таймерът спира да издава звук. Ако екранът изгасва, включи Settings → Display &amp; Brightness → Auto-Lock → Never докато тренираш. Завърти телефона хоризонтално за огромни цифри.</p>
-    <p class="note" style="margin-top:0">Версия 0.4 · гонг в интервалите</p>
+    <p class="note" style="margin-top:0">Версия 0.5 · по-силен звук</p>
   </div>`;
 }
 
