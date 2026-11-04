@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Király">
+<meta name="theme-color" content="#0B3FB8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Király Team Rounds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: phone-first timer; blue Király hero band on top, cards below. Team palette: royal blue + white, gold for warnings. */
+:root{
+  --bg:#EDF2FA; --surface:#FFFFFF; --surface2:#E0E8F6; --text:#0A1838; --dim:#56658A; --line:rgba(10,40,120,.11);
+  --work:#0A4BD6; --rest:#0094CF; --prep:#7C88A3; --warn:#C98E00; --warmup:#E3931A; --activation:#EA6A22; --cool:#6A4FE0;
+  --on-accent:#FFFFFF;
+  --hero1:#0B3FB8; --hero2:#1E6BFF; --hero3:#EAF2FF; --hero-ink:#FFFFFF;
+  --sans:'Barlow',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --digits:'Barlow Condensed','Barlow',system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#050B1C; --surface:#0C1630; --surface2:#14213F; --text:#EEF3FF; --dim:#8E9BBB; --line:rgba(140,180,255,.12);
+    --work:#3B84FF; --rest:#7FD6FF; --prep:#B7C2DA; --warn:#FFD24A; --warmup:#FFB547; --activation:#FF8A3D; --cool:#A08BFF;
+    --on-accent:#050B1C; --hero1:#06215F; --hero2:#1553E0; --hero3:#9CC2FF; --hero-ink:#FFFFFF; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#050B1C; --surface:#0C1630; --surface2:#14213F; --text:#EEF3FF; --dim:#8E9BBB; --line:rgba(140,180,255,.12);
+  --work:#3B84FF; --rest:#7FD6FF; --prep:#B7C2DA; --warn:#FFD24A; --warmup:#FFB547; --activation:#FF8A3D; --cool:#A08BFF;
+  --on-accent:#050B1C; --hero1:#06215F; --hero2:#1553E0; --hero3:#9CC2FF; --hero-ink:#FFFFFF; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.35;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--work);outline-offset:2px}
+input,select{font:inherit;color:var(--text)}
+.wrap{max-width:560px;margin:0 auto;padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Home */
+.home-head{display:flex;align-items:flex-end;justify-content:space-between;padding:22px 0 18px}
+.home-head h1{margin:0;font-family:var(--digits);font-weight:800;font-size:44px;line-height:.9;letter-spacing:.5px}
+.home-head p{margin:6px 0 0;color:var(--dim);font-size:15px}
+.icon{width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center}
+.icon svg{width:20px;height:20px}
+.quick{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:16px;margin-bottom:28px;position:relative;overflow:hidden}
+.quick::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;background:var(--work);opacity:.10;pointer-events:none}
+.quick-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dial{background:var(--surface2);border-radius:18px;padding:12px 6px 8px;text-align:center}
+.dial small{display:block;color:var(--dim);font-size:13px;font-weight:600}
+.dial b{display:block;font-family:var(--digits);font-weight:800;font-size:34px;line-height:1.05;font-variant-numeric:tabular-nums;margin:2px 0 6px}
+.dial .pm{display:flex}
+.dial .pm button{flex:1;height:38px;border-radius:12px;font-size:22px;font-weight:600;color:var(--dim);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.dial .pm button:active{background:var(--line);color:var(--text)}
+.quick-foot{display:flex;align-items:center;gap:12px;margin-top:12px}
+.quick-foot span{color:var(--dim);font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.go{flex:1;height:56px;border-radius:999px;background:var(--work);color:var(--on-accent);font-weight:700;font-size:19px;display:flex;align-items:center;justify-content:center;gap:8px}
+.go:active{transform:scale(.98)}
+section{margin-bottom:26px}
+section h2{font-size:15px;font-weight:600;color:var(--dim);margin:0 0 10px 4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px 14px 14px 16px;margin-bottom:10px;cursor:pointer}
+.card:active{transform:scale(.99)}
+.card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.card-top .t{flex:1;min-width:0}
+.card h3{margin:0;font-size:20px;font-weight:700;line-height:1.15}
+.card p{margin:3px 0 0;color:var(--dim);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .len{font-family:var(--digits);font-weight:700;font-size:20px;color:var(--dim);font-variant-numeric:tabular-nums;padding-top:1px}
+.more{width:34px;height:34px;margin:-4px -4px 0 0;border-radius:50%;color:var(--dim);font-size:20px;line-height:1}
+.create{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.create button{background:var(--surface);border:1px dashed var(--line);border-radius:18px;padding:18px 10px;font-weight:600;font-size:16px}
+.create button span{display:block;color:var(--work);font-size:24px;line-height:1;margin-bottom:4px}
+
+
+/* Király brand hero */
+.brand{position:relative;overflow:hidden;margin:14px 0 18px;border-radius:28px;padding:22px 20px 20px;color:var(--hero-ink);
+  background:linear-gradient(118deg,transparent 0 30%,rgba(255,255,255,.16) 30.5% 32%,transparent 32.5% 52%,rgba(255,255,255,.10) 52.5% 56%,transparent 56.5%),
+             radial-gradient(120% 140% at 85% 20%,var(--hero2),var(--hero1) 70%);
+  box-shadow:0 18px 40px -22px var(--hero1)}
+.brand .icon{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25);color:var(--hero-ink);z-index:2}
+.brand-star{position:absolute;right:-46px;bottom:-58px;width:230px;height:230px;opacity:.16;pointer-events:none}
+.brand-star text{font-family:var(--digits);font-weight:800}
+.brand-mark{display:flex;align-items:center;gap:12px;padding-right:48px}
+.emblem{width:52px;height:52px;flex:none;border-radius:14px;background:var(--hero-ink);display:grid;place-items:center;box-shadow:0 6px 18px -8px rgba(0,0,0,.5)}
+.emblem svg{width:36px;height:36px}
+.brand h1{margin:0;font-family:var(--digits);font-weight:800;font-size:clamp(30px,9vw,42px);line-height:.9;letter-spacing:1px;text-transform:uppercase;text-wrap:balance}
+.brand .tag{margin:4px 0 0;font-size:12px;font-weight:600;letter-spacing:4px;text-transform:uppercase;opacity:.9}
+.brand .disc{position:relative;margin:16px 0 0;font-size:12px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;opacity:.82;line-height:1.6}
+.brand .est{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;font-weight:600;letter-spacing:1.5px;opacity:.82}
+.flag{display:inline-block;width:18px;height:12px;border-radius:2px;background:linear-gradient(#CE2939 0 33.3%,#FFFFFF 33.3% 66.6%,#477050 66.6%);box-shadow:0 0 0 1px rgba(255,255,255,.3)}
+.twin{position:absolute;right:18px;bottom:14px;font-family:var(--digits);font-weight:700;font-size:11px;letter-spacing:5px;opacity:.38}
+.app-sub{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 4px 14px;color:var(--dim);font-size:15px}
+.app-sub>div:first-child{min-width:0}
+.app-sub b{display:block;font-family:var(--digits);font-weight:800;font-size:22px;color:var(--text);letter-spacing:.5px;line-height:1}
+.lang{display:flex;flex:none;background:var(--surface2);border-radius:999px;padding:3px;gap:2px}
+.lang button{min-width:42px;height:32px;border-radius:999px;font-family:var(--digits);font-weight:700;font-size:15px;letter-spacing:1px;color:var(--dim)}
+.lang button.on{background:var(--work);color:var(--on-accent)}
+.foot-kj{margin:30px 0 0;text-align:center;color:var(--dim);opacity:.55;font-family:var(--digits);font-weight:700;letter-spacing:6px;font-size:12px}
+.t-wm{position:absolute;left:50%;top:46%;width:min(120vw,120vh);height:min(120vw,120vh);transform:translate(-50%,-50%);opacity:.045;pointer-events:none;color:var(--text)}
+.t-brand{font-family:var(--digits);font-weight:800;letter-spacing:2px;font-size:15px;color:var(--dim);text-transform:uppercase}
+.strip{display:flex;gap:2px;height:6px;position:relative}
+.strip i{display:block;height:100%;border-radius:4px;flex:none;transition:opacity .3s}
+.strip.dense{gap:1px}
+.strip .head{position:absolute;top:-4px;width:3px;height:calc(100% + 8px);border-radius:2px;background:var(--text);transform:translateX(-1.5px)}
+
+/* Panels */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 0;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.bar h2{margin:0;font-size:17px;font-weight:700;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar button{font-weight:600;padding:8px 4px;color:var(--work);min-width:70px}
+.bar button:first-child{text-align:left}
+.bar button:last-child{text-align:right}
+.bar .primary{font-weight:700}
+.group{background:var(--surface);border:1px solid var(--line);border-radius:18px;margin:0 0 18px;overflow:hidden}
+.group-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--dim);margin:20px 4px 8px}
+.group-title .sp{flex:1}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:8px 14px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row label{flex:1;min-width:0}
+.durs select{padding:7px 6px;font-size:16px}
+.durs{flex:none}
+.row input[type=text],.row input[type=number]{border:0;background:transparent;text-align:right;min-width:0;flex:1;padding:6px 0}
+.row input.full{text-align:left}
+.row select{border:0;background:var(--surface2);border-radius:10px;padding:7px 8px;font-variant-numeric:tabular-nums}
+.durs{display:flex;gap:6px}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:36px;height:36px;border-radius:10px;background:var(--surface2);font-size:20px;font-weight:600}
+.stepper output{min-width:58px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.seg{display:flex;background:var(--surface2);border-radius:12px;padding:3px;gap:3px;width:100%}
+.seg button{flex:1;padding:8px 2px;border-radius:9px;font-size:13px;white-space:nowrap;font-weight:600;color:var(--dim)}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.switch{position:relative;width:51px;height:31px;flex:none}
+.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.switch span{position:absolute;inset:0;border-radius:99px;background:var(--surface2);transition:background .2s;pointer-events:none}
+.switch span::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch input:checked+span{background:var(--rest)}
+.switch input:checked+span::after{transform:translateX(20px)}
+.link{color:var(--work);font-weight:600;padding:14px;width:100%;text-align:left;border-top:1px solid var(--line)}
+.blk{display:block;width:100%;text-align:left;padding:12px 14px;border-top:1px solid var(--line)}
+.blk:first-child{border-top:0}
+.blk b{display:block;font-weight:600}
+.blk small{color:var(--dim);font-size:14px}
+.blk-row{display:flex;align-items:center}
+.blk-row .blk{flex:1}
+.mini{width:40px;height:40px;color:var(--dim);font-size:18px;flex:none}
+.note{color:var(--dim);font-size:14px;margin:-10px 6px 18px;line-height:1.4}
+.total{font-variant-numeric:tabular-nums;font-weight:700}
+.ok{color:var(--rest)} .off{color:var(--warn)} .bad{color:#E5484D}
+.cuebar{position:relative;height:24px;margin:4px 0}
+.cuebar::before{content:"";position:absolute;left:0;right:0;top:8px;height:8px;border-radius:4px;background:var(--work);opacity:.25}
+.cuebar i{position:absolute;top:2px;width:3px;height:20px;border-radius:2px;background:var(--text);transform:translateX(-1.5px)}
+.cuebar i.w{background:var(--warn)}
+.cuelegend{display:flex;justify-content:space-between;color:var(--dim);font-size:13px;font-variant-numeric:tabular-nums}
+.pv{color:var(--work);width:36px;height:36px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;flex:none}
+.pv svg{width:14px;height:14px}
+
+/* Sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;background:var(--surface);border-radius:22px 22px 0 0;padding:8px 10px calc(14px + env(safe-area-inset-bottom,0px))}
+.sheet h4{margin:10px 12px 8px;color:var(--dim);font-size:14px;font-weight:600}
+.sheet button{display:block;width:100%;text-align:left;padding:15px 12px;border-radius:12px;font-weight:600}
+.sheet button:active{background:var(--surface2)}
+.sheet .danger{color:#E5484D}
+
+/* Timer */
+.timer{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px calc(env(safe-area-inset-bottom,0px) + 18px);overflow:hidden;--accent:var(--work)}
+.timer::before{content:"";position:absolute;inset:-20%;background:radial-gradient(closest-side,var(--accent),transparent);opacity:.16;transition:background .6s;pointer-events:none}
+.t-top{display:flex;align-items:center;justify-content:space-between;position:relative;min-height:44px}
+.t-top .paused{font-weight:700;color:var(--warn);letter-spacing:.5px;position:absolute;left:50%;transform:translateX(-50%)}
+.t-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;min-height:0}
+.t-ctx{color:var(--dim);font-weight:600;font-size:15px;margin-bottom:14px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ring-wrap{position:relative;width:min(84vw,46vh,440px);aspect-ratio:1}
+.ring{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.ring circle{fill:none;stroke-width:9}
+.ring .bg{stroke:var(--line)}
+.ring .fg{stroke:var(--accent);stroke-linecap:round;transition:stroke .4s;filter:drop-shadow(0 0 6px var(--accent))}
+.ring line{stroke:var(--text);stroke-width:2.6;stroke-linecap:round}
+.ring line.past{opacity:.3}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.phase{font-weight:700;color:var(--accent);font-size:18px;letter-spacing:.3px;max-width:75%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.time{font-family:var(--digits);font-weight:800;font-size:min(23vw,12.5vh,118px);line-height:.95;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.time.warn{color:var(--warn)}
+.left{color:var(--dim);font-weight:600;font-size:15px;font-variant-numeric:tabular-nums;margin-top:6px}
+.t-next{color:var(--dim);font-weight:600;font-size:15px;text-align:center;margin:16px 0 14px;min-height:20px;position:relative}
+.t-strip{position:relative;margin:0 4px 26px}
+.t-strip .strip{height:8px}
+.controls{display:flex;align-items:center;justify-content:center;gap:34px;position:relative}
+.cbtn{width:58px;height:58px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center}
+.cbtn svg{width:20px;height:20px}
+.play{width:88px;height:88px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;transition:background .4s;box-shadow:0 0 28px -6px var(--accent)}
+.play svg{width:32px;height:32px}
+.finish{position:absolute;inset:0;z-index:2;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px}
+.finish[hidden]{display:none}
+.finish h2{font-family:var(--digits);font-weight:800;font-size:72px;margin:0;line-height:1}
+.finish p{color:var(--dim);margin:0 0 30px;font-variant-numeric:tabular-nums}
+.finish .go{flex:none;width:min(320px,100%)}
+.finish .plain{padding:14px;color:var(--dim);font-weight:600}
+.fab{position:fixed;right:max(18px,calc(50% - 262px));bottom:calc(env(safe-area-inset-bottom,0px) + 18px);width:72px;height:72px;border-radius:50%;background:var(--text);color:var(--bg);display:grid;place-items:center;box-shadow:0 10px 28px rgba(0,0,0,.35);z-index:15;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .08s}
+.fab svg{width:34px;height:34px}
+.ring-wrap{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:pointer;transition:transform .08s}
+.fab.blow,.ring-wrap.blow{transform:scale(.94)}
+.hint{color:var(--dim);font-size:12px;margin-top:4px;opacity:.75}
+.wrap{padding-bottom:116px}
+@media (orientation:landscape) and (max-height:560px){
+  .t-body{flex-direction:row;justify-content:space-between;gap:24px}
+  .ring-wrap{width:auto;aspect-ratio:auto;flex:1}
+  .ring{display:none}
+  .ring-center{position:static;align-items:flex-start;text-align:left}
+  .time{font-size:min(44vh,26vw)}
+  .phase{font-size:22px;max-width:none}
+  .t-ctx{position:absolute;top:-6px;left:0;margin:0}
+  .t-next{margin:8px 0 10px}
+  .t-strip{margin-bottom:12px}
+  .play{width:66px;height:66px}
+  .cbtn{width:48px;height:48px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+const I18N={
+en:{'Гонг':'Gong','Тройен гонг':'Triple gong','Клапа':'Clapper','Свирка':'Whistle','Бийп':'Beep','Висок бийп':'High beep','Финал':'Finish',
+'Загрявка':'Warm-up','Вработване':'Activation','Основна част':'Main part','Заключителна част':'Cool-down','Блок':'Block','Рундове':'Rounds','Интервали':'Intervals','Свободно време':'Free time',
+'Без':'None','Равномерно':'Even','По избор':'Custom','Случайно':'Random','Среща':'Bout','iv_sub':'{w} s work, {r} s rest, 8 sets','Спаринг':'Sparring',
+'Среща 2 × 2:00':'Bout 2 × 2:00','1:00 почивка, по-големи кадети':'1:00 rest, older cadets','Среща 2 × 1:30':'Bout 2 × 1:30','1:00 почивка, малки кадети и деца':'1:00 rest, younger cadets and children','Среща 3 × 2:00':'Bout 3 × 2:00','1:00 почивка, юноши и мъже/жени':'1:00 rest, juniors and seniors',
+'Тренировка 60 мин':'Training 60 min','Примерна структура, копирай и промени':'Sample structure, copy and adjust','Разпускане':'Cool-down',
+'cue_every':'signal every {x}','cue_fixed':'{n} custom signals','cue_random':'random signals {lo}–{hi} s',' (копие)':' (copy)','Бърз старт':'Quick start','Рунд':'Round','Още действия':'More actions','Настройки':'Settings',
+'Рундометър, интервали и свирка':'Round timer, intervals and whistle','Почивка':'Rest','общо':'total','Старт':'Start','Срещи':'Bouts','Тренировки':'Training sessions','Нова програма':'New program','Нова тренировка':'New training',
+'Свирка, задръж за по-дълъг сигнал':'Whistle, hold for a longer blast','минус':'minus','плюс':'plus','Затвори':'Close','докосни за свирка':'tap for whistle','Назад':'Back','Пауза или продължи':'Pause or resume','Напред':'Forward','Край':'Done','Отново':'Again',
+'left':'{x} left','Готовност':'Get ready','work_n':'Work {r}/{n}','round_of':'Round {r} of {n}','Последен сегмент':'Last segment','next_rest':'Next: rest {x}','next_free':'Next: {b} {x}','next_round':'Next: {b} {r}/{n}, {x}','Пауза':'Paused',
+'мин':'min','с':'s','минути':'minutes','секунди':'seconds','Чуй':'Play','Спрямо целта':'Against target','точно':'on target','Отказ':'Cancel','Програма':'Program','Запази':'Save','Име':'Name','Име на програмата':'Program name','Описание':'Description','по избор':'optional','Вид':'Type','Тренировка':'Training',
+'Готовност преди старта':'Get-ready time','Цел':'Target','Общо':'Total','Добави част':'Add part','Добави група блокове':'Add block group','x_of_y':'{x} of {y}','Действия с частта':'Part actions','Име на частта':'Part name','Действия с блока':'Block actions','+ Добави блок':'+ Add block',
+'На всеки':'Every','напр. 15, 37, 52, 1:30, 1:50':'e.g. 15, 37, 52, 1:30, 1:50','Секунди за сигнали':'Signal times in seconds','Най-малко през':'At least every','сек':'s','Най-много през':'At most every',
+'Без допълнителни сигнали. Бялата чертичка е сигнал, жълтата е клапата преди края.':'No extra signals. A white tick is a signal, the yellow one is the clapper before the end.',
+'Равномерен сигнал през зададения интервал, например смяна на упражнение.':'A signal at a fixed interval, for example to switch exercises.',
+'Секунди от началото на рунда, разделени със запетая. Може и мин:сек, например 1:30.':'Seconds from the start of the round, separated by commas. You can also use min:sec, for example 1:30.',
+'Сигналите идват непредвидимо, за реакция. При всяко пускане се генерират наново.':'Signals come unpredictably, for reaction work. They are generated anew on every start.',
+'‹ Назад':'‹ Back','Тип':'Type','Серии':'Sets','Времетраене':'Duration','Работа':'Work','Почивка след блока':'Rest after block','Сигнали по време на работа':'Signals during work','Режим на сигналите':'Signal mode','Звук на сигнала':'Signal sound','Звуци':'Sounds',
+'Клапа преди края':'Clapper before end','изкл.':'off','Начало':'Start','Отброяване 3-2-1 в почивката':'3-2-1 countdown in rest','n_cues':'{n} signals','Създай':'Create',' мин':' min','Вработваща част':'Activation part',
+'Основната част получава оставащото време. След „Създай“ всяка част се попълва с рундове, интервали или свободно време.':'The main part gets the remaining time. After “Create”, fill each part with rounds, intervals or free time.',
+'Готово':'Done','Сила на сигналите':'Signal volume','Свири върху музика':'Play over music',
+'Със „Свири върху музика“ сигналите се смесват с музиката от Spotify или Apple Music. Тогава звукът зависи от бутона за тих режим на iPhone, затова тихият режим трябва да е изключен.':'With “Play over music” the signals mix with music from Spotify or Apple Music. The sound then follows the iPhone silent switch, so keep silent mode off.',
+'Прослушай звуците':'Preview sounds','Важно за уеб версията':'Good to know about the web version',
+'Свирка: кръглият бутон на началния екран или кръгът по време на таймера. Докосване дава кратък сигнал, задържане — дълъг. В браузъра бутоните за звук на телефона не могат да се използват; това ще работи в истинското приложение.':'Whistle: the round button on the home screen, or the ring while the timer runs. A tap gives a short blast, holding gives a long one. The phone volume buttons cannot trigger it in the browser; that will work in the native app.',
+'Дръж екрана включен по време на тренировка. Ако телефонът заключи екрана, таймерът спира да издава звук. Ако екранът изгасва, включи Settings → Display &amp; Brightness → Auto-Lock → Never докато тренираш. Завърти телефона хоризонтално за огромни цифри.':'Keep the screen on during training. If the phone locks, the timer stops making sound. If the screen keeps turning off, set Settings → Display &amp; Brightness → Auto-Lock → Never while you train. Turn the phone sideways for huge digits.',
+'Копирай и редактирай':'Copy and edit','Редактирай':'Edit','Дублирай':'Duplicate','Изтрий':'Delete','del_q':'Delete “{x}”?','Да, изтрий':'Yes, delete','Моята програма':'My program','Програмата е празна. Добави поне един блок с време.':'The program is empty. Add at least one block with time.',
+'Нагоре':'Move up','Надолу':'Move down','Премахни частта':'Remove part','Добави блок':'Add block','lang_label':'Language','end_sound':'End'},
+hu:{'Гонг':'Gong','Тройен гонг':'Tripla gong','Клапа':'Kopogó','Свирка':'Síp','Бийп':'Sípszó','Висок бийп':'Magas sípszó','Финал':'Befejezés',
+'Загрявка':'Bemelegítés','Вработване':'Ráhangolás','Основна част':'Fő rész','Заключителна част':'Levezetés','Блок':'Blokk','Рундове':'Menetek','Интервали':'Intervallumok','Свободно време':'Szabad idő',
+'Без':'Nincs','Равномерно':'Egyenletes','По избор':'Egyéni','Случайно':'Véletlen','Среща':'Mérkőzés','iv_sub':'{w} mp munka, {r} mp pihenő, 8 sorozat','Спаринг':'Sparring',
+'Среща 2 × 2:00':'Mérkőzés 2 × 2:00','1:00 почивка, по-големи кадети':'1:00 pihenő, idősebb kadetek','Среща 2 × 1:30':'Mérkőzés 2 × 1:30','1:00 почивка, малки кадети и деца':'1:00 pihenő, fiatalabb kadetek és gyerekek','Среща 3 × 2:00':'Mérkőzés 3 × 2:00','1:00 почивка, юноши и мъже/жени':'1:00 pihenő, juniorok és felnőttek',
+'Тренировка 60 мин':'Edzés 60 perc','Примерна структура, копирай и промени':'Mintaszerkezet, másold és alakítsd át','Разпускане':'Levezetés',
+'cue_every':'jelzés {x}-enként','cue_fixed':'{n} egyéni jelzés','cue_random':'véletlen jelzések {lo}–{hi} mp',' (копие)':' (másolat)','Бърз старт':'Gyorsindítás','Рунд':'Menet','Още действия':'További műveletek','Настройки':'Beállítások',
+'Рундометър, интервали и свирка':'Menetóra, intervallumok és síp','Почивка':'Pihenő','общо':'összesen','Старт':'Start','Срещи':'Mérkőzések','Тренировки':'Edzések','Нова програма':'Új program','Нова тренировка':'Új edzés',
+'Свирка, задръж за по-дълъг сигнал':'Síp, tartsd nyomva a hosszabb jelzéshez','минус':'mínusz','плюс':'plusz','Затвори':'Bezárás','докосни за свирка':'érintsd meg a sípért','Назад':'Vissza','Пауза или продължи':'Szünet vagy folytatás','Напред':'Előre','Край':'Vége','Отново':'Újra',
+'left':'hátra: {x}','Готовност':'Készülj','work_n':'Munka {r}/{n}','round_of':'{r}. menet / {n}','Последен сегмент':'Utolsó szakasz','next_rest':'Következik: pihenő {x}','next_free':'Következik: {b} {x}','next_round':'Következik: {b} {r}/{n}, {x}','Пауза':'Szünet',
+'мин':'perc','с':'mp','минути':'perc','секунди':'másodperc','Чуй':'Lejátszás','Спрямо целта':'A célhoz képest','точно':'pontos','Отказ':'Mégse','Програма':'Program','Запази':'Mentés','Име':'Név','Име на програмата':'A program neve','Описание':'Leírás','по избор':'nem kötelező','Вид':'Típus','Тренировка':'Edzés',
+'Готовност преди старта':'Felkészülési idő','Цел':'Cél','Общо':'Összesen','Добави част':'Rész hozzáadása','Добави група блокове':'Blokkcsoport hozzáadása','x_of_y':'{x} / {y}','Действия с частта':'Rész műveletei','Име на частта':'A rész neve','Действия с блока':'Blokk műveletei','+ Добави блок':'+ Blokk hozzáadása',
+'На всеки':'Időköz','напр. 15, 37, 52, 1:30, 1:50':'pl. 15, 37, 52, 1:30, 1:50','Секунди за сигнали':'Jelzések időpontjai másodpercben','Най-малко през':'Legalább ennyi időnként','сек':'mp','Най-много през':'Legfeljebb ennyi időnként',
+'Без допълнителни сигнали. Бялата чертичка е сигнал, жълтата е клапата преди края.':'Nincs további jelzés. A fehér vonás jelzés, a sárga a vég előtti kopogó.',
+'Равномерен сигнал през зададения интервал, например смяна на упражнение.':'Jelzés egyenlő időközönként, például gyakorlatváltáshoz.',
+'Секунди от началото на рунда, разделени със запетая. Може и мин:сек, например 1:30.':'Másodpercek a menet kezdetétől, vesszővel elválasztva. Perc:mp is lehet, például 1:30.',
+'Сигналите идват непредвидимо, за реакция. При всяко пускане се генерират наново.':'A jelzések kiszámíthatatlanul jönnek, reakcióedzéshez. Minden indításkor újak keletkeznek.',
+'‹ Назад':'‹ Vissza','Тип':'Típus','Серии':'Sorozatok','Времетраене':'Időtartam','Работа':'Munka','Почивка след блока':'Pihenő a blokk után','Сигнали по време на работа':'Jelzések munka közben','Режим на сигналите':'Jelzési mód','Звук на сигнала':'Jelzés hangja','Звуци':'Hangok',
+'Клапа преди края':'Kopogó a vége előtt','изкл.':'ki','Начало':'Kezdés','Отброяване 3-2-1 в почивката':'3-2-1 visszaszámlálás a pihenőben','n_cues':'{n} jelzés','Създай':'Létrehozás',' мин':' perc','Вработваща част':'Ráhangoló rész',
+'Основната част получава оставащото време. След „Създай“ всяка част се попълва с рундове, интервали или свободно време.':'A fő rész kapja a fennmaradó időt. A „Létrehozás” után minden részt menetekkel, intervallumokkal vagy szabad idővel töltesz meg.',
+'Готово':'Kész','Сила на сигналите':'Jelzések hangereje','Свири върху музика':'Lejátszás zene mellett',
+'Със „Свири върху музика“ сигналите се смесват с музиката от Spotify или Apple Music. Тогава звукът зависи от бутона за тих режим на iPhone, затова тихият режим трябва да е изключен.':'A „Lejátszás zene mellett” opcióval a jelzések keverednek a Spotify vagy Apple Music zenével. Ilyenkor a hang az iPhone némító kapcsolójától függ, ezért a néma mód legyen kikapcsolva.',
+'Прослушай звуците':'Hangok meghallgatása','Важно за уеб версията':'Fontos a webes verzióról',
+'Свирка: кръглият бутон на началния екран или кръгът по време на таймера. Докосване дава кратък сигнал, задържане — дълъг. В браузъра бутоните за звук на телефона не могат да се използват; това ще работи в истинското приложение.':'Síp: a kerek gomb a kezdőképernyőn, vagy a kör az időzítő futása alatt. Egy érintés rövid, a nyomva tartás hosszú jelzést ad. Böngészőben a telefon hangerőgombjai nem használhatók; ez a natív alkalmazásban működni fog.',
+'Дръж екрана включен по време на тренировка. Ако телефонът заключи екрана, таймерът спира да издава звук. Ако екранът изгасва, включи Settings → Display &amp; Brightness → Auto-Lock → Never докато тренираш. Завърти телефона хоризонтално за огромни цифри.':'Edzés közben maradjon bekapcsolva a képernyő. Ha a telefon lezár, az időzítő nem ad hangot. Ha a kijelző kikapcsol, állítsd be: Beállítások → Kijelző és fényerő → Automatikus zárolás → Soha, amíg edzel. Fordítsd el a telefont fekvőbe az óriási számokért.',
+'Копирай и редактирай':'Másolás és szerkesztés','Редактирай':'Szerkesztés','Дублирай':'Duplikálás','Изтрий':'Törlés','del_q':'Törlöd ezt: „{x}”?','Да, изтрий':'Igen, törlés','Моята програма':'Saját program','Програмата е празна. Добави поне един блок с време.':'A program üres. Adj hozzá legalább egy időzített blokkot.',
+'Нагоре':'Fel','Надолу':'Le','Премахни частта':'Rész eltávolítása','Добави блок':'Blokk hozzáadása','lang_label':'Nyelv','end_sound':'Vége'}};
+let lang=(()=>{try{const v=localStorage.getItem('kiraly.lang');if(v==='en'||v==='hu')return v}catch(e){}return /^hu/i.test(navigator.language||'')?'hu':'en'})();
+function T(k,v){let s=(I18N[lang]&&I18N[lang][k])??I18N.en[k]??k;if(v)for(const n in v)s=s.split('{'+n+'}').join(v[n]);return s}
+function setLang(l){lang=l;try{localStorage.setItem('kiraly.lang',l)}catch(e){}applyLang();render()}
+
+
+let SOUNDS,PARTS,STYLES,CUEMODES;function langData(){SOUNDS={bell:T('Гонг'),bellEnd:T('Тройен гонг'),clapper:T('Клапа'),whistle:T('Свирка'),beep:T('Бийп'),beepHigh:T('Висок бийп'),finish:T('Финал')};
+PARTS={warmup:T('Загрявка'),activation:T('Вработване'),main:T('Основна част'),cooldown:T('Заключителна част'),general:T('Блок')};
+STYLES={rounds:T('Рундове'),intervals:T('Интервали'),free:T('Свободно време')};
+CUEMODES={none:T('Без'),every:T('Равномерно'),fixed:T('По избор'),random:T('Случайно')};}
+const uid=()=>Math.random().toString(36).slice(2,10);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function block(o){return Object.assign({id:uid(),name:T('Рундове'),style:'rounds',rounds:3,work:120,rest:60,restAfter:0,warning:10,cues:{mode:'none'},cueSound:'whistle',startSound:'bell',endSound:'bellEnd',countdown:true},o)}
+const roundsBlock=(name,r,w,rest)=>block({name,rounds:r,work:w,rest,warning:w>=30?10:0});
+const intervalsBlock=(w,r,n)=>block({name:`${T('Интервали')} ${w}/${r}`,style:'intervals',rounds:n,work:w,rest:r,warning:0,startSound:'beepHigh',endSound:'beep',countdown:r>=4});
+const freeBlock=(name,s)=>block({name,style:'free',rounds:1,work:s,rest:0,warning:0,countdown:false});
+const part=(kind,name,blocks,planned=null)=>({id:uid(),kind,name,planned,blocks});
+function program(o){return Object.assign({id:uid(),name:'',subtitle:'',category:'rounds',prep:0,target:null,parts:[],builtin:false},o)}
+
+function builtins(){
+  const bout=(name,sub,r,w)=>program({id:'b-'+r+w,name,subtitle:sub,category:'rounds',parts:[part('general',T('Среща'),[roundsBlock(T('Среща'),r,w,60)])],builtin:true});
+  const iv=(w,r)=>program({id:`b-iv${w}${r}`,name:`${T('Интервали')} ${w}/${r}`,subtitle:T('iv_sub',{w,r}),category:'intervals',parts:[part('general',T('Интервали'),[intervalsBlock(w,r,8)])],builtin:true});
+  const warm=freeBlock(T('Загрявка'),600);warm.cues={mode:'every',every:60};
+  const act=intervalsBlock(30,10,12);act.restAfter=70;
+  const main=roundsBlock(T('Спаринг'),8,180,60);main.restAfter=60;
+  return [
+    bout(T('Среща 2 × 2:00'),T('1:00 почивка, по-големи кадети'),2,120),
+    bout(T('Среща 2 × 1:30'),T('1:00 почивка, малки кадети и деца'),2,90),
+    bout(T('Среща 3 × 2:00'),T('1:00 почивка, юноши и мъже/жени'),3,120),
+    iv(10,10),iv(20,10),iv(30,10),
+    program({id:'b-w60',name:T('Тренировка 60 мин'),subtitle:T('Примерна структура, копирай и промени'),category:'workout',target:3600,builtin:true,parts:[
+      part('warmup',T('Загрявка'),[warm],600),part('activation',T('Вработване'),[act],540),
+      part('main',T('Основна част'),[main],1920),part('cooldown',T('Заключителна част'),[freeBlock(T('Разпускане'),540)],540)]})
+  ];
+}
+let BUILTINS;function applyLang(){langData();BUILTINS=builtins();document.documentElement.lang=lang}
+applyLang();
+
+const blockTotal=b=>(b.rounds>0&&b.work>0)?b.rounds*b.work+Math.max(0,b.rounds-1)*b.rest+b.restAfter:0;
+const partTotal=p=>p.blocks.reduce((a,b)=>a+blockTotal(b),0);
+const contentTotal=p=>p.parts.reduce((a,x)=>a+partTotal(x),0);
+const progTotal=p=>p.prep+contentTotal(p);
+function fmt(s){s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`:`${m}:${String(x).padStart(2,'0')}`}
+function parseTimes(t){return String(t).split(/[\s,;]+/).map(tok=>{const p=tok.split(':');if(p.length===2&&p[0]!==''&&p[1]!=='')return(+p[0])*60+(+p[1]);return tok===''?NaN:+tok}).filter(n=>Number.isFinite(n))}
+function cueSummary(c){switch(c.mode){case'every':return T('cue_every',{x:fmt(c.every)});case'fixed':return T('cue_fixed',{n:(c.list||[]).length});case'random':return T('cue_random',{lo:c.lo,hi:c.hi});default:return''}}
+function blockSummary(b){let s=b.style==='free'?fmt(b.work):(b.rounds>1&&b.rest>0?`${b.rounds} × ${fmt(b.work)} / ${fmt(b.rest)}`:`${b.rounds} × ${fmt(b.work)}`);const c=cueSummary(b.cues);return c?s+', '+c:s}
+
+
+const store={
+  get(k,d){try{const v=localStorage.getItem('kiraly.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('kiraly.'+k,JSON.stringify(v))}catch(e){}}
+};
+let custom=store.get('custom',[]);
+if(!store.get('prep0',false)){custom.forEach(p=>{if(p.prep===10)p.prep=0});store.set('custom',custom);store.set('prep0',true)}
+let quick=store.get('quick',{rounds:3,work:120,rest:60});
+let settings=Object.assign({volume:0.9,mix:true},store.get('settings',{}));
+const allPrograms=cat=>BUILTINS.filter(p=>p.category===cat).concat(custom.filter(p=>p.category===cat));
+const findProgram=id=>BUILTINS.find(p=>p.id===id)||custom.find(p=>p.id===id);
+function saveProgram(p){p=clone(p);p.builtin=false;const i=custom.findIndex(x=>x.id===p.id);if(i>=0)custom[i]=p;else custom.push(p);store.set('custom',custom)}
+function deleteProgram(id){custom=custom.filter(p=>p.id!==id);store.set('custom',custom)}
+function copyOf(p,suffix){const c=clone(p);c.id=uid();c.builtin=false;if(suffix)c.name+=T(' (копие)');return c}
+
+
+function rng32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function cueOffsets(b,rnd){
+  const w=b.work,c=b.cues||{mode:'none'};
+  if(c.mode==='every'){const n=c.every|0;if(n<=0||n>=w)return[];const o=[];for(let x=n;x<w;x+=n)o.push(x);return o}
+  if(c.mode==='fixed'){return[...new Set(c.list||[])].filter(x=>x>0&&x<w).sort((a,b)=>a-b)}
+  if(c.mode==='random'){const lo=Math.max(1,Math.min(c.lo,c.hi)),hi=Math.max(lo,c.lo,c.hi);const ri=()=>lo+Math.floor(rnd()*(hi-lo+1));const o=[];let x=ri();while(x<w){o.push(x);x+=ri()}return o}
+  return[];
+}
+const RANK={finish:6,start:5,end:4,warning:3,cue:2,countdown:1};
+function compile(p,seed){
+  const rnd=rng32(seed??Math.floor(Math.random()*4294967295));
+  const segs=[],evs=[];let t=0;
+  const addSeg=(kind,d,pt,b,r)=>segs.push({kind,start:t,dur:d,partName:pt?pt.name:'',partKind:pt?pt.kind:'general',blockName:b?b.name:'',style:b?b.style:'rounds',round:r,roundCount:b?b.rounds:0,warning:b?b.warning:0});
+  const cd=(end,len)=>{if(len>=4)for(let k=1;k<=3;k++)evs.push({t:end-k,s:'beep',k:'countdown'})};
+  if(p.prep>0){addSeg('prep',p.prep,null,null,0);cd(p.prep,p.prep);t=p.prep}
+  for(const pt of p.parts)for(const b of pt.blocks){
+    if(!(b.rounds>0&&b.work>0))continue;
+    for(let r=1;r<=b.rounds;r++){
+      addSeg('work',b.work,pt,b,r);
+      evs.push({t,s:b.startSound,k:'start'});
+      for(const c of cueOffsets(b,rnd))evs.push({t:t+c,s:b.cueSound,k:'cue'});
+      if(b.warning>0&&b.warning<b.work)evs.push({t:t+b.work-b.warning,s:'clapper',k:'warning'});
+      t+=b.work;
+      evs.push({t,s:b.endSound,k:'end'});
+      const rl=r===b.rounds?b.restAfter:b.rest;
+      if(rl>0){addSeg('rest',rl,pt,b,r);if(b.countdown)cd(t+rl,rl);t+=rl}
+    }
+  }
+  evs.push({t,s:'finish',k:'finish'});
+  evs.sort((a,b)=>a.t-b.t||RANK[b.k]-RANK[a.k]);
+  const out=[];
+  for(const e of evs){const l=out[out.length-1];if(l&&Math.abs(l.t-e.t)<0.25){if(RANK[e.k]>RANK[l.k])out[out.length-1]=e;continue}out.push(e)}
+  return{segs,evs:out,total:t};
+}
+function segIndex(tl,t){const s=tl.segs;if(!s.length)return-1;let lo=0,hi=s.length-1;if(t>=s[hi].start)return hi;while(lo<hi){const m=(lo+hi+1)>>1;if(s[m].start<=t)lo=m;else hi=m-1}return lo}
+const partVar=k=>({warmup:'var(--warmup)',activation:'var(--activation)',cooldown:'var(--cool)'}[k]||'var(--work)');
+const segVar=s=>s.kind==='prep'?'var(--prep)':s.kind==='rest'?'var(--rest)':partVar(s.partKind);
+function stripHTML(tl,cls=''){const tot=Math.max(tl.total,1);const dense=tl.segs.length>50;return`<div class="strip ${dense?'dense':''} ${cls}">${tl.segs.map((s,i)=>`<i data-i="${i}" style="width:calc(${(s.dur/tot*100).toFixed(4)}% - ${dense?1:2}px);background:${segVar(s)}"></i>`).join('')}</div>`}
+
+
+let ctx=null,master=null,noiseBuf=null;
+function ensureAudio(){
+  try{if(navigator.audioSession)navigator.audioSession.type=settings.mix?'ambient':'playback'}catch(e){}
+  if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=new AC();master=ctx.createGain();master.connect(ctx.destination);
+    noiseBuf=ctx.createBuffer(1,ctx.sampleRate*0.2,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+  master.gain.value=settings.volume;
+  if(ctx.state!=='running')ctx.resume();
+}
+function env(t0,peak,dur){const g=ctx.createGain();g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(peak,t0+0.004);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);g.connect(master);return g}
+function tone(t0,f,peak,dur,type='sine'){const o=ctx.createOscillator();o.type=type;o.frequency.value=f;o.connect(env(t0,peak,dur));o.start(t0);o.stop(t0+dur+0.05);return o}
+function strike(t0,f0,dur,gain=1){[[1,1,1],[2.76,.55,1.6],[5.4,.32,2.4],[8.93,.18,3.4],[1.5,.22,1.2]].forEach(([r,a,k])=>tone(t0,f0*r,0.32*a*gain,dur/k))}
+function knock(t0){const n=ctx.createBufferSource();n.buffer=noiseBuf;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1800;bp.Q.value=3;n.connect(bp);bp.connect(env(t0,0.9,0.07));n.start(t0);n.stop(t0+0.1);tone(t0,1650,0.35,0.06)}
+function whistle(t0){const d=0.55;const o=ctx.createOscillator();o.frequency.value=3100;const lfo=ctx.createOscillator();lfo.frequency.value=28;const lg=ctx.createGain();lg.gain.value=70;lfo.connect(lg);lg.connect(o.frequency);
+  const am=ctx.createGain();am.gain.value=0.6;const alfo=ctx.createOscillator();alfo.type='square';alfo.frequency.value=28;const ag=ctx.createGain();ag.gain.value=0.4;alfo.connect(ag);ag.connect(am.gain);
+  const g=ctx.createGain();g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(0.3,t0+0.02);g.gain.setValueAtTime(0.3,t0+d-0.06);g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+  o.connect(am);am.connect(g);g.connect(master);[o,lfo,alfo].forEach(x=>{x.start(t0);x.stop(t0+d+0.05)})}
+
+function whistleHold(){
+  ensureAudio();if(!ctx)return{stop(){}};
+  const t0=ctx.currentTime;
+  const o=ctx.createOscillator();o.frequency.value=3100;
+  const lfo=ctx.createOscillator();lfo.frequency.value=28;const lg=ctx.createGain();lg.gain.value=70;lfo.connect(lg);lg.connect(o.frequency);
+  const am=ctx.createGain();am.gain.value=0.6;const alfo=ctx.createOscillator();alfo.type='square';alfo.frequency.value=28;const ag=ctx.createGain();ag.gain.value=0.4;alfo.connect(ag);ag.connect(am.gain);
+  const g=ctx.createGain();g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(0.32,t0+0.02);
+  o.connect(am);am.connect(g);g.connect(master);[o,lfo,alfo].forEach(x=>x.start(t0));
+  let done=false;const cap=setTimeout(stop,4000);
+  function stop(){if(done)return;done=true;clearTimeout(cap);const t=Math.max(ctx.currentTime,t0+0.35);g.gain.setValueAtTime(0.32,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.06);[o,lfo,alfo].forEach(x=>x.stop(t+0.1))}
+  return{stop};
+}
+function play(id,when){
+  if(!ctx)return;const t=Math.max(ctx.currentTime,when??ctx.currentTime);
+  switch(id){
+    case'bell':strike(t,1180,1.6);break;
+    case'bellEnd':strike(t,1180,1.3);strike(t+0.28,1180,1.3);strike(t+0.56,1180,1.4);break;
+    case'finish':strike(t,420,3.2,1.2);[0,.3,.6,.9].forEach(d=>strike(t+d,1180,1.2,.6));break;
+    case'clapper':knock(t);knock(t+0.14);break;
+    case'whistle':whistle(t);break;
+    case'beep':tone(t,880,0.4,0.14);tone(t,1760,0.1,0.14);break;
+    case'beepHigh':tone(t,1320,0.4,0.3);tone(t,2640,0.1,0.3);break;
+  }
+}
+
+
+const E={prog:null,tl:null,state:'idle',acc:0,at:null,next:0,elapsed:0,lastIdx:-2};
+let wakeLock=null;
+async function wake(on){try{if(on&&'wakeLock'in navigator){if(!wakeLock)wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null})}else if(!on&&wakeLock){await wakeLock.release();wakeLock=null}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&E.state==='running'){wake(true);ensureAudio()}});
+const nowT=()=>E.acc+(E.at!=null?(performance.now()-E.at)/1000:0);
+function tLoad(p){E.prog=p;E.tl=compile(p);E.state='idle';E.acc=0;E.at=null;E.next=0;E.elapsed=0;E.lastIdx=-2}
+function tStart(){if(E.state==='running')return;if(E.state==='finished'){E.tl=compile(E.prog);E.acc=0;E.next=0;E.elapsed=0;E.lastIdx=-2}ensureAudio();E.at=performance.now();E.state='running';wake(true);tick()}
+function tPause(){if(E.state!=='running')return;E.acc=nowT();E.at=null;E.elapsed=E.acc;E.state='paused';wake(false)}
+function tToggle(){E.state==='running'?tPause():tStart()}
+function tSeek(t){t=Math.min(Math.max(0,t),E.tl.total);E.acc=t;if(E.state==='running')E.at=performance.now();E.elapsed=t;E.next=E.tl.evs.findIndex(e=>e.t>=t-0.001);if(E.next<0)E.next=E.tl.evs.length;if(E.state==='finished'&&t<E.tl.total)E.state='paused';if(E.state==='running')tick()}
+function tSkip(d){const i=segIndex(E.tl,E.elapsed);if(i<0)return;const s=E.tl.segs;if(d>0)tSeek(i+1<s.length?s[i+1].start:E.tl.total);else tSeek(E.elapsed-s[i].start>2||i===0?s[i].start:s[i-1].start)}
+function tStop(){E.state='idle';E.at=null;wake(false)}
+function tick(){
+  if(E.state!=='running')return;
+  const t=Math.min(nowT(),E.tl.total),ev=E.tl.evs;
+  while(E.next<ev.length&&ev[E.next].t<=t+0.12){const e=ev[E.next];if(t-e.t<1.5){play(e.s,ctx?ctx.currentTime+Math.max(0,e.t-t):0);if(navigator.vibrate&&(e.k==='start'||e.k==='end'||e.k==='warning'||e.k==='finish'))try{navigator.vibrate(e.k==='warning'?[60,60,60]:120)}catch(x){}}E.next++}
+  E.elapsed=t;
+  if(t>=E.tl.total){E.state='finished';E.acc=E.tl.total;E.at=null;wake(false)}
+}
+setInterval(tick,40);
+
+
+const ICON={
+  sliders:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 001.5.86l12-7.5a1 1 0 000-1.72l-12-7.5A1 1 0 007 4.5z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="5" height="16" rx="1.5"/><rect x="14" y="4" width="5" height="16" rx="1.5"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="3" height="14" rx="1"/><path d="M20 5.5v13a1 1 0 01-1.5.86L8.5 13a1.2 1.2 0 010-2l10-6.36A1 1 0 0120 5.5z"/></svg>',
+  fwd:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="17" y="5" width="3" height="14" rx="1"/><path d="M4 5.5v13a1 1 0 001.5.86L15.5 13a1.2 1.2 0 000-2l-10-6.36A1 1 0 004 5.5z"/></svg>',
+  whistle:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 7h12a1 1 0 011 1v2a1 1 0 01-1 1h-6.34A6 6 0 119 7z"/><circle cx="9" cy="13" r="2.2" fill="var(--text)"/></svg>',
+  spk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 010 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+};
+
+
+const STAR_PTS=(cx,cy,R,r)=>Array.from({length:10},(_,i)=>{const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r:R;return(cx+rr*Math.cos(a)).toFixed(2)+','+(cy+rr*Math.sin(a)).toFixed(2)}).join(' ');
+const EMBLEM=`<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="var(--hero1)"/><polygon points="${STAR_PTS(20,21,15,6.2)}" fill="#FFFFFF"/></svg>`;
+const STAR_WM=`<svg class="brand-star" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="96" fill="none" stroke="#FFFFFF" stroke-width="5"/><polygon points="${STAR_PTS(100,106,84,34)}" fill="#FFFFFF"/><text x="100" y="124" text-anchor="middle" font-size="44" fill="var(--hero1)" letter-spacing="2">KJ</text></svg>`;
+const TIMER_WM=`<svg class="t-wm" viewBox="0 0 200 200" aria-hidden="true"><polygon points="${STAR_PTS(100,106,92,37)}" fill="currentColor"/></svg>`;
+
+const app=document.getElementById('app');
+let view='home',draft=null,draftIsNew=false,curPart=null,curBlock=null,builder=null;
+
+function render(){
+  if(view==='home')renderHome();
+  else if(view==='timer')renderTimer();
+  else if(view==='editor')renderEditor();
+  else if(view==='block')renderBlock();
+  else if(view==='builder')renderBuilder();
+  else if(view==='settings')renderSettings();
+}
+function go(v){view=v;render();window.scrollTo(0,0)}
+
+function quickProgram(){return program({name:T('Бърз старт'),subtitle:`${quick.rounds} × ${fmt(quick.work)} / ${fmt(quick.rest)}`,parts:[part('general',T('Рундове'),[roundsBlock(T('Рунд'),quick.rounds,quick.work,quick.rest)])]})}
+function cardHTML(p){
+  const tl=compile(p,1);
+  return`<div class="card" data-act="run" data-id="${esc(p.id)}" role="button" tabindex="0">
+    <div class="card-top"><div class="t"><h3>${esc(p.name)}</h3>${p.subtitle?`<p>${esc(p.subtitle)}</p>`:''}</div>
+    <span class="len">${fmt(progTotal(p))}</span><button class="more" data-act="more" data-id="${esc(p.id)}" aria-label="${T('Още действия')}">⋯</button></div>
+    ${stripHTML(tl)}</div>`;
+}
+function renderHome(){
+  const sec=(cat,title)=>{const l=allPrograms(cat);return l.length?`<section><h2>${title}</h2>${l.map(cardHTML).join('')}</section>`:''};
+  const qp=quickProgram();
+  app.innerHTML=`<div class="wrap">
+    <header class="brand">
+      ${STAR_WM}
+      <button class="icon" data-act="settings" aria-label="${T('Настройки')}">${ICON.sliders}</button>
+      <div class="brand-mark"><span class="emblem">${EMBLEM}</span><div><h1>Király Team</h1><p class="tag">Home of champions</p></div></div>
+      <p class="disc">Kickboxing · Boxing · Muay Thai · Taekwondo · Sambo</p>
+      <div class="est">EST. 1985 <span aria-hidden="true">|</span> HUNGARY <span class="flag" aria-hidden="true"></span></div>
+      <span class="twin" aria-hidden="true">K · J · TWIN</span>
+    </header>
+    <div class="app-sub"><div><b>ROUNDS</b><span>${T('Рундометър, интервали и свирка')}</span></div><div class="lang" role="group" aria-label="${T('lang_label')}">${['en','hu'].map(l=>`<button data-lang="${l}" class="${lang===l?'on':''}" aria-pressed="${lang===l}">${l.toUpperCase()}</button>`).join('')}</div></div>
+    <div class="quick">
+      <div class="quick-row">
+        ${dialHTML(T('Рундове'),quick.rounds,'rounds')}
+        ${dialHTML(T('Рунд'),fmt(quick.work),'work')}
+        ${dialHTML(T('Почивка'),quick.rest?fmt(quick.rest):'—','rest')}
+      </div>
+      <div class="quick-foot"><span>${T('общо')} ${fmt(progTotal(qp))}</span><button class="go" data-act="quick-go">${ICON.play.replace('<svg','<svg width="18" height="18"')} ${T('Старт')}</button></div>
+    </div>
+    ${sec('rounds',T('Срещи'))}${sec('intervals',T('Интервали'))}${sec('workout',T('Тренировки'))}
+    <div class="create"><button data-act="new-program"><span>+</span>${T('Нова програма')}</button><button data-act="new-workout"><span>+</span>${T('Нова тренировка')}</button></div>
+    <p class="foot-kj" aria-hidden="true">KJ ★ TWIN</p>
+    <button class="fab" data-whistle aria-label="${T('Свирка, задръж за по-дълъг сигнал')}">${ICON.whistle}</button>
+  </div>`;
+}
+function dialHTML(label,val,key){return`<div class="dial"><small>${label}</small><b>${val}</b><div class="pm"><button data-hold="${key}:-1" aria-label="${label} ${T('минус')}">−</button><button data-hold="${key}:1" aria-label="${label} ${T('плюс')}">+</button></div></div>`}
+function bumpQuick(key,dir){
+  const st=v=>(dir<0?v<=60:v<60)?5:15;
+  if(key==='rounds')quick.rounds=Math.min(99,Math.max(1,quick.rounds+dir));
+  if(key==='work')quick.work=Math.min(3600,Math.max(5,quick.work+dir*st(quick.work)));
+  if(key==='rest')quick.rest=Math.min(1800,Math.max(0,quick.rest+dir*st(quick.rest)));
+  store.set('quick',quick);renderHome();
+}
+
+
+const C=2*Math.PI*90;
+let lastTime='',lastState='';
+function renderTimer(){
+  app.innerHTML=`<div class="timer" id="tv">${TIMER_WM}
+    <div class="t-top"><button class="icon" data-act="close" aria-label="${T('Затвори')}">${ICON.x}</button><span class="paused" id="t-paused"></span><span class="t-brand">Király ★</span></div>
+    <div class="t-body">
+      <div class="t-ctx" id="t-ctx"></div>
+      <div class="ring-wrap" data-whistle role="button" aria-label="${T('Свирка, задръж за по-дълъг сигнал')}">
+        <svg class="ring" viewBox="0 0 200 200"><circle class="bg" cx="100" cy="100" r="90"/><circle class="fg" id="ring-fg" cx="100" cy="100" r="90" stroke-dasharray="565.49" stroke-dashoffset="565.49"/><g id="ring-marks"></g></svg>
+        <div class="ring-center"><div class="phase" id="t-phase"></div><div class="time" id="t-time">0:00</div><div class="left" id="t-left"></div><div class="hint">${T('докосни за свирка')}</div></div>
+      </div>
+    </div>
+    <div class="t-next" id="t-next"></div>
+    <div class="t-strip" id="t-strip">${stripHTML(E.tl)}<span class="head" id="t-head"></span></div>
+    <div class="controls">
+      <button class="cbtn" data-act="skip-back" aria-label="${T('Назад')}">${ICON.back}</button>
+      <button class="play" data-act="toggle" id="t-play" aria-label="${T('Пауза или продължи')}">${ICON.pause}</button>
+      <button class="cbtn" data-act="skip-fwd" aria-label="${T('Напред')}">${ICON.fwd}</button>
+    </div>
+    <div class="finish" id="t-finish" hidden><h2>${T('Край')}</h2><p id="t-finish-sub"></p><button class="go" data-act="again">${T('Отново')}</button><button class="plain" data-act="close">${T('Затвори')}</button></div>
+  </div>`;
+  document.querySelector('#t-strip .strip').appendChild(document.getElementById('t-head'));
+  E.lastIdx=-2;lastState='';lastTime='';requestAnimationFrame(frame);
+}
+
+function frame(){
+  if(view!=='timer')return;
+  const tl=E.tl,t=E.elapsed,i=segIndex(tl,t);if(i<0)return;
+  const s=tl.segs[i],rem=Math.max(0,s.start+s.dur-t),p=Math.min(1,Math.max(0,(t-s.start)/s.dur));
+  const warn=s.kind==='work'&&s.warning>0&&rem<=s.warning;
+  const tv=document.getElementById('tv');if(!tv)return;
+  tv.style.setProperty('--accent',warn?'var(--warn)':segVar(s));
+  document.getElementById('ring-fg').setAttribute('stroke-dashoffset',(C*(1-Math.max(0.002,p))).toFixed(2));
+  const tt=fmt(Math.ceil(rem-0.001));
+  const te=document.getElementById('t-time');if(tt!==lastTime){te.textContent=tt;lastTime=tt}
+  te.classList.toggle('warn',warn);
+  document.getElementById('t-left').textContent=T('left',{x:fmt(Math.floor(tl.total-t))});
+  document.getElementById('t-head').style.left=(t/Math.max(tl.total,1)*100)+'%';
+  if(i!==E.lastIdx){
+    E.lastIdx=i;
+    const phase=s.kind==='prep'?T('Готовност'):s.kind==='rest'?T('Почивка'):s.style==='free'?s.blockName:s.style==='intervals'?T('work_n',{r:s.round,n:s.roundCount}):T('round_of',{r:s.round,n:s.roundCount});
+    document.getElementById('t-phase').textContent=phase;
+    document.getElementById('t-ctx').textContent=s.kind==='prep'||E.prog.category!=='workout'?E.prog.name:`${s.partName}, ${s.blockName}`;
+    const n=tl.segs[i+1];
+    document.getElementById('t-next').textContent=!n?T('Последен сегмент'):n.kind==='rest'?T('next_rest',{x:fmt(n.dur)}):n.style==='free'?T('next_free',{b:n.blockName,x:fmt(n.dur)}):T('next_round',{b:n.blockName,r:n.round,n:n.roundCount,x:fmt(n.dur)});
+    const marks=s.kind==='work'?tl.evs.filter(e=>(e.k==='cue'||e.k==='warning')&&e.t>s.start&&e.t<s.start+s.dur).map(e=>(e.t-s.start)/s.dur):[];
+    document.getElementById('ring-marks').innerHTML=marks.map(f=>{const a=f*2*Math.PI;const c=Math.cos(a),sn=Math.sin(a);return`<line data-f="${f}" x1="${100+80*c}" y1="${100+80*sn}" x2="${100+100*c}" y2="${100+100*sn}"/>`}).join('');
+    document.querySelectorAll('#t-strip i').forEach(el=>{el.style.opacity=(+el.dataset.i<=i)?1:.3});
+  }
+  document.querySelectorAll('#ring-marks line').forEach(l=>l.classList.toggle('past',+l.dataset.f<=p));
+  if(E.state!==lastState){
+    lastState=E.state;
+    document.getElementById('t-play').innerHTML=E.state==='running'?ICON.pause:ICON.play;
+    document.getElementById('t-paused').textContent=E.state==='paused'?T('Пауза'):'';
+    const fin=document.getElementById('t-finish');fin.hidden=E.state!=='finished';
+    if(E.state==='finished')document.getElementById('t-finish-sub').textContent=`${E.prog.name}, ${fmt(tl.total)}`;
+  }
+  requestAnimationFrame(frame);
+}
+
+
+function durHTML(label,key,val,maxMin=60){
+  const m=Math.floor(val/60),s=val%60;
+  const mo=Array.from({length:Math.max(maxMin,m)+1},(_,i)=>`<option value="${i}"${i===m?' selected':''}>${i} ${T(T('мин'))}</option>`).join('');
+  const so=Array.from({length:60},(_,i)=>`<option value="${i}"${i===s?' selected':''}>${String(i).padStart(2,'0')} ${T(T('с'))}</option>`).join('');
+  return`<div class="row"><label>${label}</label><span class="durs" data-dur="${key}"><select aria-label="${label} ${T('минути')}" data-part="m">${mo}</select><select aria-label="${label} ${T('секунди')}" data-part="s">${so}</select></span></div>`;
+}
+function stepHTML(label,key,val,shown){const al=esc(label.replace(/<[^>]+>/g,''));return`<div class="row"><label>${label}</label><span class="stepper"><button data-step="${key}:-1" aria-label="${al} ${T('минус')}">−</button><output>${shown??val}</output><button data-step="${key}:1" aria-label="${al} ${T('плюс')}">+</button></span></div>`}
+function switchHTML(label,key,on){return`<div class="row"><label for="sw-${key}">${label}</label><span class="switch"><input type="checkbox" id="sw-${key}" data-sw="${key}"${on?' checked':''}><span></span></span></div>`}
+function selectHTML(label,key,val,opts){return`<div class="row"><label>${label}</label><select data-sel="${key}">${Object.entries(opts).map(([k,v])=>`<option value="${k}"${k===val?' selected':''}>${v}</option>`).join('')}</select></div>`}
+function soundHTML(label,key,val){return`<div class="row"><label>${label}</label><span class="durs"><select data-sel="${key}">${Object.entries(SOUNDS).map(([k,v])=>`<option value="${k}"${k===val?' selected':''}>${v}</option>`).join('')}</select><button class="pv" data-preview="${key}" aria-label="${T('Чуй')} ${label}">${ICON.spk}</button></span></div>`}
+
+function openEditor(p,isNew){draft=clone(p);draftIsNew=isNew;go('editor')}
+function renderEditor(){
+  const d=draft,isW=d.category==='workout',tl=compile(d,1);
+  let diff='';
+  if(isW&&d.target){const df=contentTotal(d)-d.target;diff=`<div class="row"><label>${T('Спрямо целта')}</label><span class="total ${df===0?'ok':'off'}">${df===0?T('точно'):(df>0?'+':'−')+fmt(Math.abs(df))}</span></div>`}
+  app.innerHTML=`<div class="wrap">
+    <div class="bar"><button data-act="ed-cancel">${T('Отказ')}</button><h2>${esc(d.name||T('Програма'))}</h2><button class="primary" data-act="ed-save">${T('Запази')}</button></div>
+    <div class="group">
+      <div class="row"><label for="pn">${T('Име')}</label><input id="pn" type="text" data-text="name" value="${esc(d.name)}" placeholder="${T('Име на програмата')}"></div>
+      <div class="row"><label for="ps">${T('Описание')}</label><input id="ps" type="text" data-text="subtitle" value="${esc(d.subtitle)}" placeholder="${T('по избор')}"></div>
+      ${selectHTML(T('Вид'),'category',d.category,{rounds:T('Среща'),intervals:T('Интервали'),workout:T('Тренировка')})}
+      ${durHTML(T('Готовност преди старта'),'prep',d.prep,5)}
+      ${isW?stepHTML(T('Цел'),'target',d.target||3600,`${Math.round((d.target||3600)/60)} ${T(T('мин'))}`):''}
+    </div>
+    <div class="group"><div class="row" style="display:block;padding:14px">${stripHTML(tl)}</div>
+      <div class="row"><label>${T('Общо')}</label><span class="total">${fmt(progTotal(d))}</span></div>${diff}</div>
+    ${d.parts.map((pt,pi)=>partHTML(pt,pi,isW)).join('')}
+    <div class="group"><button class="link" style="border:0" data-act="add-part">+ ${isW?T('Добави част'):T('Добави група блокове')}</button></div>
+  </div>`;
+}
+function partHTML(pt,pi,isW){
+  const tot=partTotal(pt);
+  const plan=isW&&pt.planned?`<span class="${tot===pt.planned?'ok':'off'}">${T('x_of_y',{x:fmt(tot),y:fmt(pt.planned)})}</span>`:`<span>${fmt(tot)}</span>`;
+  return`<div class="group-title"><span class="dot" style="background:${partVar(pt.kind)}"></span>${esc(PARTS[pt.kind])}<span class="sp"></span>${plan}${draft.parts.length>1?`<button class="mini" data-act="part-menu" data-pi="${pi}" aria-label="${T('Действия с частта')}">⋯</button>`:''}</div>
+  <div class="group">
+    ${isW||draft.parts.length>1?`<div class="row"><input class="full" type="text" data-ptext="${pi}" value="${esc(pt.name)}" aria-label="${T('Име на частта')}" style="font-weight:600"></div>`:''}
+    ${pt.blocks.map((b,bi)=>`<div class="blk-row" style="border-top:1px solid var(--line)"><button class="blk" style="border:0" data-act="edit-block" data-pi="${pi}" data-bi="${bi}"><b>${esc(b.name)}</b><small>${esc(blockSummary(b))}</small></button><button class="mini" data-act="block-menu" data-pi="${pi}" data-bi="${bi}" aria-label="${T('Действия с блока')}">⋯</button></div>`).join('')}
+    <button class="link" data-act="add-block" data-pi="${pi}">${T('+ Добави блок')}</button>
+  </div>`;
+}
+
+
+function renderBlock(){
+  const b=draft.parts[curPart].blocks[curBlock];if(!b){go('editor');return}
+  const c=b.cues||{mode:'none'};
+  let cueFields='';
+  if(c.mode==='every')cueFields=durHTML(T('На всеки'),'cue-every',c.every,30);
+  if(c.mode==='fixed')cueFields=`<div class="row"><input class="full" type="text" inputmode="text" data-cuefixed value="${esc((c.list||[]).map(x=>x>=60?fmt(x):x).join(', '))}" placeholder="${T('напр. 15, 37, 52, 1:30, 1:50')}" aria-label="${T('Секунди за сигнали')}"></div>`;
+  if(c.mode==='random')cueFields=stepHTML(T('Най-малко през'),'cue-lo',c.lo,`${c.lo} ${T(T('сек'))}`)+stepHTML(T('Най-много през'),'cue-hi',c.hi,`${c.hi} ${T(T('сек'))}`);
+  const showPrev=c.mode!=='none'||b.warning>0;
+  const notes={none:T('Без допълнителни сигнали. Бялата чертичка е сигнал, жълтата е клапата преди края.'),every:T('Равномерен сигнал през зададения интервал, например смяна на упражнение.'),fixed:T('Секунди от началото на рунда, разделени със запетая. Може и мин:сек, например 1:30.'),random:T('Сигналите идват непредвидимо, за реакция. При всяко пускане се генерират наново.')};
+  app.innerHTML=`<div class="wrap">
+    <div class="bar"><button data-act="blk-done">${T('‹ Назад')}</button><h2>${esc(b.name)}</h2><span style="min-width:70px"></span></div>
+    <div class="group">
+      <div class="row"><label for="bn">${T('Име')}</label><input id="bn" type="text" data-btext="name" value="${esc(b.name)}"></div>
+      ${selectHTML(T('Тип'),'b-style',b.style,STYLES)}
+    </div>
+    <div class="group">
+      ${b.style!=='free'?stepHTML(b.style==='intervals'?T('Серии'):T('Рундове'),'b-rounds',b.rounds):''}
+      ${durHTML(b.style==='free'?T('Времетраене'):b.style==='intervals'?T('Работа'):T('Рунд'),'b-work',b.work,120)}
+      ${b.style!=='free'&&b.rounds>1?durHTML(T('Почивка'),'b-rest',b.rest,30):''}
+      ${durHTML(T('Почивка след блока'),'b-restAfter',b.restAfter,30)}
+      <div class="row"><label>${T('Общо')}</label><span class="total">${fmt(blockTotal(b))}</span></div>
+    </div>
+    <div class="group-title">${T('Сигнали по време на работа')}</div>
+    <div class="group">
+      <div class="row"><div class="seg" role="group" aria-label="${T('Режим на сигналите')}">${Object.entries(CUEMODES).map(([k,v])=>`<button class="${c.mode===k?'on':''}" data-cue="${k}">${v}</button>`).join('')}</div></div>
+      ${cueFields}
+      ${showPrev?`<div class="row" style="display:block" id="cueprev">${cuePrevHTML(b)}</div>`:''}
+      ${c.mode!=='none'?soundHTML(T('Звук на сигнала'),'b-cueSound',b.cueSound):''}
+    </div>
+    <p class="note">${notes[c.mode]}</p>
+    <div class="group-title">${T('Звуци')}</div>
+    <div class="group">
+      ${stepHTML(T('Клапа преди края'),'b-warning',b.warning,b.warning?`${b.warning} ${T(T('сек'))}`:T('изкл.'))}
+      ${soundHTML(T('Начало'),'b-startSound',b.startSound)}
+      ${soundHTML(T('end_sound'),'b-endSound',b.endSound)}
+      ${switchHTML(T('Отброяване 3-2-1 в почивката'),'b-countdown',b.countdown)}
+    </div>
+  </div>`;
+}
+function cuePrevHTML(b){
+  const cs=cueOffsets(b,rng32(42)),w=Math.max(b.work,1);
+  return`<div class="cuebar">${cs.map(x=>`<i style="left:${x/w*100}%"></i>`).join('')}${b.warning>0&&b.warning<b.work?`<i class="w" style="left:${(w-b.warning)/w*100}%"></i>`:''}</div><div class="cuelegend"><span>0:00</span><span>${T('n_cues',{n:cs.length})}</span><span>${fmt(b.work)}</span></div>`;
+}
+
+
+function renderBuilder(){
+  const B=builder,main=B.total-B.warm-(B.useAct?B.act:0)-B.cool;
+  const items=[['warmup',B.warm],['activation',B.useAct?B.act:0],['main',Math.max(0,main)],['cooldown',B.cool]].filter(x=>x[1]>0);
+  const sum=Math.max(1,items.reduce((a,x)=>a+x[1],0));
+  app.innerHTML=`<div class="wrap">
+    <div class="bar"><button data-act="home">${T('Отказ')}</button><h2>${T('Нова тренировка')}</h2><button class="primary" data-act="bd-create" ${main<=0?'disabled style="opacity:.4"':''}>${T('Създай')}</button></div>
+    <div class="group"><div class="row"><label for="bdn">${T('Име')}</label><input id="bdn" type="text" data-bname value="${esc(B.name)}"></div></div>
+    <div class="group"><div class="row"><div class="seg">${[60,90,120].map(m=>`<button class="${B.total===m?'on':''}" data-total="${m}">${m} ${T(T('мин'))}</button>`).join('')}</div></div></div>
+    <div class="group">
+      ${stepHTML('<span class="dot" style="display:inline-block;background:var(--warmup);margin-right:8px"></span>'+T(T('Загрявка')),'bd-warm',B.warm,B.warm+T(' мин'))}
+      ${switchHTML(T('Вработваща част'),'bd-useAct',B.useAct)}
+      ${B.useAct?stepHTML('<span class="dot" style="display:inline-block;background:var(--activation);margin-right:8px"></span>'+T(T('Вработване')),'bd-act',B.act,B.act+T(' мин')):''}
+      <div class="row"><label><span class="dot" style="display:inline-block;background:var(--work);margin-right:8px"></span>${T(T('Основна част'))}</label><span class="total ${main>0?'':'bad'}">${main} ${T('мин')}</span></div>
+      ${stepHTML('<span class="dot" style="display:inline-block;background:var(--cool);margin-right:8px"></span>'+T(T('Заключителна част')),'bd-cool',B.cool,B.cool+T(' мин'))}
+    </div>
+    <p class="note">${T('Основната част получава оставащото време. След „Създай“ всяка част се попълва с рундове, интервали или свободно време.')}</p>
+    <div class="group"><div class="row" style="display:block;padding:16px 14px"><div class="strip" style="height:14px;gap:3px">${items.map(([k,m])=>`<i style="width:calc(${m/sum*100}% - 3px);background:${partVar(k)}"></i>`).join('')}</div></div></div>
+  </div>`;
+}
+function builderDefaults(t){const d={60:[12,8,8],90:[15,10,10],120:[20,15,15]}[t];builder.warm=d[0];builder.act=d[1];builder.cool=d[2]}
+function buildWorkout(){
+  const B=builder,main=B.total-B.warm-(B.useAct?B.act:0)-B.cool,parts=[];
+  if(B.warm>0)parts.push(part('warmup',T('Загрявка'),[freeBlock(T('Загрявка'),B.warm*60)],B.warm*60));
+  if(B.useAct&&B.act>0)parts.push(part('activation',T('Вработване'),[freeBlock(T('Вработване'),B.act*60)],B.act*60));
+  parts.push(part('main',T('Основна част'),[freeBlock(T('Основна част'),main*60)],main*60));
+  if(B.cool>0)parts.push(part('cooldown',T('Заключителна част'),[freeBlock(T('Разпускане'),B.cool*60)],B.cool*60));
+  return program({name:B.name||T('Тренировка'),subtitle:`${B.total} ${T('мин')}`,category:'workout',target:B.total*60,parts});
+}
+
+
+function renderSettings(){
+  app.innerHTML=`<div class="wrap">
+    <div class="bar"><span style="min-width:70px"></span><h2>${T('Настройки')}</h2><button class="primary" data-act="home">${T('Готово')}</button></div>
+    <div class="group">
+      <div class="row" style="display:block"><label for="vol">${T('Сила на сигналите')}</label><input id="vol" type="range" min="0.2" max="1" step="0.05" value="${settings.volume}" data-vol style="width:100%;margin-top:8px;accent-color:var(--work)"></div>
+      ${switchHTML(T('Свири върху музика'),'set-mix',settings.mix)}
+    </div>
+    <p class="note">${T('Със „Свири върху музика“ сигналите се смесват с музиката от Spotify или Apple Music. Тогава звукът зависи от бутона за тих режим на iPhone, затова тихият режим трябва да е изключен.')}</p>
+    <div class="group-title">${T('Прослушай звуците')}</div>
+    <div class="group">${Object.entries(SOUNDS).map(([k,v])=>`<div class="row"><label>${v}</label><button class="pv" data-hear="${k}" aria-label="${T('Чуй')} ${v}">${ICON.spk}</button></div>`).join('')}</div>
+    <div class="group-title">${T('Важно за уеб версията')}</div>
+    <p class="note" style="margin-top:0">${T('Свирка: кръглият бутон на началния екран или кръгът по време на таймера. Докосване дава кратък сигнал, задържане — дълъг. В браузъра бутоните за звук на телефона не могат да се използват; това ще работи в истинското приложение.')}</p>
+    <p class="note" style="margin-top:0">${T('Дръж екрана включен по време на тренировка. Ако телефонът заключи екрана, таймерът спира да издава звук. Ако екранът изгасва, включи Settings → Display &amp; Brightness → Auto-Lock → Never докато тренираш. Завърти телефона хоризонтално за огромни цифри.')}</p>
+  </div>`;
+}
+
+
+function sheet(title,actions){
+  const bg=document.createElement('div');bg.className='sheet-bg';
+  bg.innerHTML=`<div class="sheet" role="dialog" aria-label="${esc(title)}"><h4>${esc(title)}</h4>${actions.map((a,i)=>`<button data-i="${i}" class="${a.danger?'danger':''}">${esc(a.label)}</button>`).join('')}<button data-i="x">${T('Отказ')}</button></div>`;
+  bg.addEventListener('click',e=>{const b=e.target.closest('button');if(e.target===bg||b){bg.remove();if(b&&b.dataset.i!=='x')actions[+b.dataset.i].run()}});
+  document.body.appendChild(bg);
+}
+
+
+function startProgram(p){ensureAudio();tLoad(clone(p));go('timer');tStart()}
+app.addEventListener('click',e=>{
+  const lg=e.target.closest('[data-lang]');if(lg){setLang(lg.dataset.lang);return}
+  const el=e.target.closest('[data-act],[data-cue],[data-total],[data-preview],[data-hear],[data-step]');if(!el)return;
+  if(el.dataset.step){const[k,d]=el.dataset.step.split(':');onStep(k,+d);return}
+  if(el.dataset.cue){setCue(el.dataset.cue);return}
+  if(el.dataset.total){builder.total=+el.dataset.total;builderDefaults(builder.total);renderBuilder();return}
+  if(el.dataset.preview){ensureAudio();const b=draft.parts[curPart].blocks[curBlock];play(b[el.dataset.preview.replace('b-','')]);return}
+  if(el.dataset.hear){ensureAudio();play(el.dataset.hear);return}
+  const a=el.dataset.act,id=el.dataset.id;
+  switch(a){
+    case'settings':go('settings');break;
+    case'home':go('home');break;
+    case'quick-go':startProgram(quickProgram());break;
+    case'run':startProgram(findProgram(id));break;
+    case'more':{e.stopPropagation();const p=findProgram(id);
+      sheet(p.name,p.builtin?[{label:T('Копирай и редактирай'),run:()=>openEditor(copyOf(p,false),true)}]:[
+        {label:T('Редактирай'),run:()=>openEditor(p,false)},
+        {label:T('Дублирай'),run:()=>{saveProgram(copyOf(p,true));renderHome()}},
+        {label:T('Изтрий'),danger:true,run:()=>setTimeout(()=>sheet(T('del_q',{x:p.name}),[{label:T('Да, изтрий'),danger:true,run:()=>{deleteProgram(p.id);renderHome()}}]),0)}]);break}
+    case'new-program':openEditor(program({name:T('Моята програма'),parts:[part('general',T('Рундове'),[roundsBlock(T('Рундове'),3,120,60)])]}),true);break;
+    case'new-workout':builder={name:T('Тренировка'),total:60,warm:12,useAct:true,act:8,cool:8};go('builder');break;
+    case'bd-create':{const m=builder.total-builder.warm-(builder.useAct?builder.act:0)-builder.cool;if(m>0)openEditor(buildWorkout(),true);break}
+    case'close':tStop();go('home');break;
+    case'toggle':tToggle();break;
+    case'skip-back':tSkip(-1);break;
+    case'skip-fwd':tSkip(1);break;
+    case'again':lastState='';tStart();break;
+    case'ed-cancel':draft=null;go('home');break;
+    case'ed-save':if(contentTotal(draft)>0){saveProgram(draft);draft=null;go('home')}else sheet(T('Програмата е празна. Добави поне един блок с време.'),[]);break;
+    case'add-part':sheet(T('Добави част'),Object.entries(PARTS).map(([k,v])=>({label:v,run:()=>{draft.parts.push(part(k,v,[k==='main'||k==='general'?roundsBlock(T('Рундове'),3,120,60):freeBlock(v,300)]));renderEditor()}})));break;
+    case'part-menu':{const pi=+el.dataset.pi;sheet(draft.parts[pi].name,[
+      {label:T('Нагоре'),run:()=>{if(pi>0){[draft.parts[pi-1],draft.parts[pi]]=[draft.parts[pi],draft.parts[pi-1]]}renderEditor()}},
+      {label:T('Надолу'),run:()=>{if(pi<draft.parts.length-1){[draft.parts[pi+1],draft.parts[pi]]=[draft.parts[pi],draft.parts[pi+1]]}renderEditor()}},
+      {label:T('Премахни частта'),danger:true,run:()=>{draft.parts.splice(pi,1);renderEditor()}}]);break}
+    case'add-block':{const pi=+el.dataset.pi;sheet(T('Добави блок'),[
+      {label:T('Рундове'),run:()=>{draft.parts[pi].blocks.push(roundsBlock(T('Рундове'),3,120,60));renderEditor()}},
+      {label:T('Интервали'),run:()=>{draft.parts[pi].blocks.push(intervalsBlock(20,10,8));renderEditor()}},
+      {label:T('Свободно време'),run:()=>{draft.parts[pi].blocks.push(freeBlock(T('Свободно време'),300));renderEditor()}}]);break}
+    case'block-menu':{const pi=+el.dataset.pi,bi=+el.dataset.bi,bl=draft.parts[pi].blocks;sheet(bl[bi].name,[
+      {label:T('Нагоре'),run:()=>{if(bi>0)[bl[bi-1],bl[bi]]=[bl[bi],bl[bi-1]];renderEditor()}},
+      {label:T('Надолу'),run:()=>{if(bi<bl.length-1)[bl[bi+1],bl[bi]]=[bl[bi],bl[bi+1]];renderEditor()}},
+      {label:T('Дублирай'),run:()=>{const c=clone(bl[bi]);c.id=uid();bl.splice(bi+1,0,c);renderEditor()}},
+      {label:T('Изтрий'),danger:true,run:()=>{bl.splice(bi,1);renderEditor()}}]);break}
+    case'edit-block':curPart=+el.dataset.pi;curBlock=+el.dataset.bi;go('block');break;
+    case'blk-done':go('editor');break;
+  }
+});
+function curB(){return draft.parts[curPart].blocks[curBlock]}
+function onStep(k,d){
+  if(k==='target'){draft.target=Math.min(240*60,Math.max(5*60,(draft.target||3600)+d*300));renderEditor();return}
+  if(k.startsWith('bd-')){const f=k.slice(3);builder[f]=Math.min(120,Math.max(0,builder[f]+d));renderBuilder();return}
+  const b=curB();
+  if(k==='b-rounds')b.rounds=Math.min(99,Math.max(1,b.rounds+d));
+  if(k==='b-warning')b.warning=Math.min(60,Math.max(0,b.warning+d*5));
+  if(k==='cue-lo'){b.cues.lo=Math.min(600,Math.max(1,b.cues.lo+d));if(b.cues.hi<b.cues.lo)b.cues.hi=b.cues.lo}
+  if(k==='cue-hi'){b.cues.hi=Math.min(600,Math.max(1,b.cues.hi+d));if(b.cues.lo>b.cues.hi)b.cues.lo=b.cues.hi}
+  renderBlock();
+}
+function setCue(mode){
+  const b=curB();
+  if(mode==='none')b.cues={mode:'none'};
+  if(mode==='every')b.cues={mode:'every',every:30};
+  if(mode==='fixed')b.cues={mode:'fixed',list:[]};
+  if(mode==='random')b.cues={mode:'random',lo:5,hi:20};
+  renderBlock();
+}
+app.addEventListener('change',e=>{
+  const t=e.target;
+  const dur=t.closest('[data-dur]');
+  if(dur){
+    const sels=dur.querySelectorAll('select');const v=(+sels[0].value)*60+(+sels[1].value);const k=dur.dataset.dur;
+    if(k==='prep'){draft.prep=v;renderEditor();return}
+    const b=curB();
+    if(k==='cue-every')b.cues.every=Math.max(1,v);
+    else b[k.slice(2)]=k==='b-work'?Math.max(1,v):v;
+    renderBlock();return;
+  }
+  if(t.dataset.sel){
+    const k=t.dataset.sel;
+    if(k==='category'){draft.category=t.value;if(t.value==='workout'&&!draft.target)draft.target=3600;renderEditor();return}
+    const b=curB();
+    if(k==='b-style'){b.style=t.value;if(t.value==='free'){b.rounds=1;b.rest=0}renderBlock();return}
+    b[k.slice(2)]=t.value;return;
+  }
+  if(t.dataset.sw){
+    const k=t.dataset.sw;
+    if(k==='b-countdown'){curB().countdown=t.checked;return}
+    if(k==='bd-useAct'){builder.useAct=t.checked;renderBuilder();return}
+    if(k==='set-mix'){settings.mix=t.checked;store.set('settings',settings);return}
+  }
+  if(t.hasAttribute('data-cuefixed')){curB().cues.list=parseTimes(t.value);renderBlock();return}
+});
+app.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.text){draft[t.dataset.text]=t.value;return}
+  if(t.dataset.ptext!=null){draft.parts[+t.dataset.ptext].name=t.value;return}
+  if(t.dataset.btext){curB()[t.dataset.btext]=t.value;return}
+  if(t.hasAttribute('data-bname')){builder.name=t.value;return}
+  if(t.hasAttribute('data-cuefixed')){curB().cues.list=parseTimes(t.value);const pv=document.getElementById('cueprev');if(pv)pv.innerHTML=cuePrevHTML(curB());return}
+  if(t.hasAttribute('data-vol')){settings.volume=+t.value;store.set('settings',settings);if(master)master.gain.value=settings.volume;return}
+});
+app.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('card')){e.preventDefault();startProgram(findProgram(e.target.dataset.id))}});
+
+let holdTimer=null,holdDelay=null;
+function stopHold(){clearTimeout(holdDelay);clearInterval(holdTimer);holdTimer=holdDelay=null}
+app.addEventListener('pointerdown',e=>{
+  const b=e.target.closest('[data-hold]');if(!b)return;e.preventDefault();
+  const[k,d]=b.dataset.hold.split(':');bumpQuick(k,+d);
+  holdDelay=setTimeout(()=>{holdTimer=setInterval(()=>bumpQuick(k,+d),90)},420);
+});
+['pointerup','pointercancel','pointerleave'].forEach(n=>window.addEventListener(n,stopHold));
+app.addEventListener('contextmenu',e=>{if(e.target.closest('[data-hold],[data-whistle]'))e.preventDefault()});
+let activeWhistle=null,whEl=null;
+app.addEventListener('pointerdown',e=>{
+  const w=e.target.closest('[data-whistle]');if(!w)return;e.preventDefault();
+  if(activeWhistle)activeWhistle.stop();activeWhistle=whistleHold();whEl=w;w.classList.add('blow');
+  try{w.setPointerCapture(e.pointerId)}catch(x){}
+});
+function endWhistle(){if(activeWhistle){activeWhistle.stop();activeWhistle=null}if(whEl){whEl.classList.remove('blow');whEl=null}}
+['pointerup','pointercancel'].forEach(n=>window.addEventListener(n,endWhistle));
+window.addEventListener('keydown',e=>{if((e.key==='w'||e.key==='W')&&!e.repeat&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){const h=whistleHold();setTimeout(()=>h.stop(),10)}});
+
+render();
+</script>
+<script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{}));</script>
+</body>
+</html>
